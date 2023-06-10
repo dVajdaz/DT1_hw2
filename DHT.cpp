@@ -10,18 +10,22 @@ int DHT::hashFunction(const int &id) const {
 
 bool DHT::Find(const int &id) const
 {
-    //call hashFunction to get the index -> call find function of the structure stored in the index
-    return true;
+    Customer dummy = new Customer(id);
+
+    bool ans = (array[hashFunction(id)].find(dummy) != nullptr);
+
+    delete dummy;
+    return ans;
 }
 
-void DHT::Insert(int customer)
+void DHT::Insert(Customer& customer)
 {
     if (occupancy + 1 == capacity){
         capacity *= expansion;
         newArray(capacity);
     }
 
-    //array[hashFunction(customer)] = customer;   //TODO: Overload operator = for AVL tree
+    array[hashFunction(customer.getId())].insert(customer);
 
     occupancy++;
 }
@@ -41,9 +45,20 @@ void DHT::newArray(const int &newCapacity) {
 
     for (int i = 0; i < capacity/expansion; i++)
     {
-        //TODO: Copy each object of the table into the new array using updated hashFunction
+        if(array[i])
+           rehashTree(array[i], newArray);
+           //delete array[i];   //NOT SURE IF NEEDED SINCE CALLING delete[] array AFTER
     }
 
     delete[] array;
     array = newArray;
 }
+
+void DHT:rehashTree(AVL<Customer, CompareById<Customer> tree, int* newArray){
+        if (!(tree.root))
+            return;
+
+        rehashTree(tree.root->right, newArray);
+        *newArray[hashFunction(tree.root.obj->getId())].insert(tree.root.obj);
+        rehashTree(tree.root->left, newArray);
+};

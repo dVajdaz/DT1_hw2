@@ -67,8 +67,8 @@ class DHT {
 
     bool Find(const int &id) const;
 
-    void Insert(int customer);                  //TODO: Change int to Customer
-    //void Remove(const int &id);                 //TODO: Change int to Customer
+    void Insert(Customer& customer);
+    //void Remove(const int &id);
 
     void newArray(const int& newCapacity);
 
