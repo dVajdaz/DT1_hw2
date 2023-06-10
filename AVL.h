@@ -138,6 +138,8 @@ public:
     Node *getMaxNode(Node *node) const;
 
     void setObjectDelete();
+
+    void addExtra(int key, int toAdd, bool right = false);
 };
 
 //--------------------------Tree operations implementation--------------------------
@@ -265,6 +267,31 @@ void AVL<T, Comparator>::printPostOrder(AVL::Node *root, int *&output) {
 template<class T, class Comparator>
 void AVL<T, Comparator>::setObjectDelete(){
     deleteObject = true;
+}
+
+template<class T, class Comparator>
+void AVL<T, Comparator>::addExtra(AVL::Node *root, int key, int toAdd, bool right){
+    if(root->obj.getId() == key){
+        if(!right)
+           root->extra += toAdd;
+
+        if(root->right)
+            root->right->extra -= toAdd;
+    }
+
+    if(root->obj.getId() < key && root->right){
+        if(!right)
+            root->extra += toAdd;
+
+        addExtra(root->right, key, toAdd, true);
+    }
+
+    if(root->obj.getId() > key && root->left){
+        if(right)
+            root->extra -= toAdd;
+
+        addExtra(root->left, key, toAdd, false);
+    }
 }
 
 //--------------------------Rotations implementation--------------------------
