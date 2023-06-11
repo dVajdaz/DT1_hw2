@@ -3,6 +3,8 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include "DHT.h"
+#include "Customer.h"
 
 using namespace std;
 
@@ -17,6 +19,33 @@ vector<int> getRecordsStocks();
 
 int main()
 {
+  auto* database =new DHT<Customer>();
+  for(int i = 1; i<15; i++){
+      database->insert(*new Customer(i, i, 0, false));
+      cout << "\nUSER WITH ID " << database->array[database->hashFunction(i)].root->obj->getId() << " INSERTED INTO INDEX " << database->hashFunction(i);
+  }
+
+  cout << "\n\nADDING NEW USER WHOSE INDEX IN THE ARRAY HAS TO CHANGE!";
+  auto* idToChangeBob = new Customer(17, 17, 0, false);
+  database->insert(*idToChangeBob);
+  cout << "\nUSER WITH ID " << database->get(idToChangeBob)->getId() << " INSERTED INTO INDEX " << database->hashFunction(17);
+
+  cout << "\n\nADDING NEW USER! RESIZE REQUIRED";
+
+  database->insert(*new Customer(16, 16, 0, false));
+
+  cout << "\nNEW SIZE OF THE ARRAY IS " << database->getCapacity();
+  cout << "\nUSER WITH ID " << database->array[database->hashFunction(16)].root->obj->getId() << " INSERTED INTO INDEX " << database->hashFunction(16);
+
+  cout << "\n\nUSER WITH ID " << database->get(idToChangeBob)->getId() << " REINSERTED INTO INDEX " << database->hashFunction(17);
+
+  for(int i = 0; i < database->getCapacity(); i++){
+      database->array[i].setObjectDelete();
+  }
+
+  delete database;
+
+  /*
   string op;
   RecordsCompany *test_obj = new RecordsCompany();
   while (cin >> op)
@@ -114,7 +143,9 @@ int main()
     }
   }
   delete test_obj;
+   */
   return 0;
+
 }
 
 
@@ -179,4 +210,5 @@ vector<int> getRecordsStocks()
   cin >> bracket;
 
   return stocks_vec;
+
 }

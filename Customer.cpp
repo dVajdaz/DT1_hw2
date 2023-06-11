@@ -9,10 +9,22 @@ int Customer::getId() const {
     return id;
 }
 
+int Customer::getNumber() const {
+    return number;
+}
+
+int Customer::getPurchases() const {
+    return purchases;
+}
+
 bool Customer::isMember() const {
     return membership;
 }
 
 void Customer::makeMember() {
     membership = true;
+}
+
+void Customer::addPurchases(const int toAdd) {
+    purchases += toAdd;
 }

@@ -6,10 +6,7 @@
 #define UNTITLED_DHT_H
 
 #include <new>
-#include "Customer.h"
 #include "AVL.h"
-
-const int initial = 10;
 
 template<class T>
 class CompareById {
@@ -23,26 +20,22 @@ public:
     }
 };
 
+template<class T>
+class Reinsert;
+
+template<class T>
 class DHT {
-    public:
-    AVL<Customer, CompareById<Customer>>* array;
-
-
-    int capacity;
-    int occupancy;
-
+    int capacity, occupancy;
     const int expansion;
     //const int shrinkage;
 
-    DHT(const int &expansion_rate): capacity(initial),
-                                    occupancy(0),
-                                    expansion(expansion_rate)
-                                    //shrinkage(shrinkage_rate)
-    {
-        for (int counter = 0; counter < initial; counter++) {
-            array[counter] = AVL<Customer, CompareById<Customer>>();
-        }
-    }
+public:
+    DHT(const int capacity = 16, int expansion_rate = 2):  array(new AVL<T, CompareById<T>>[capacity]),
+                                                                    capacity(capacity),
+                                                                    occupancy(0),
+                                                                    expansion(expansion_rate)
+                                                                    //shrinkage(shrinkage_rate)
+     {}
 
 /*
     DHT(const DHT &toCopy): array(new  int[toCopy.capacity]),   //NOT SURE IF NEEDED
@@ -63,15 +56,78 @@ class DHT {
         delete[] array;
     }
 
-    int hashFunction(const int& id) const;
+    int hashFunction(const int& id){
+        return id % capacity;
+    }
 
-    bool Find(const int &id) const;
+    bool contains(T* dummy){
+        return array[hashFunction(dummy->getId())].find(dummy) != nullptr;
+    }
 
-    void Insert(Customer& customer);
-    //void Remove(const int &id);
+    T* get(T* dummy){
+        return array[hashFunction(dummy->getId())].find(dummy);
+    }
 
-    void newArray(const int& newCapacity);
+    void insert(T& toAdd){
+            if (occupancy + 1 == capacity)
+                newArray();
 
+            array[hashFunction(toAdd.getId())].insert(toAdd);
+
+            occupancy++;
+    }
+
+    void newArray(){
+        auto* oldData = array;
+        int prevOccupancy = occupancy;
+
+        capacity *= expansion;
+        try
+        {
+            array = new AVL<T, CompareById<T>>[capacity];
+            occupancy = 0;
+
+            Reinsert<T> reinsert(this);
+            for (int i = 0; i < capacity/expansion; i++)
+            {
+                oldData[i].runInOrder(reinsert);
+                //oldData[i].setObjectDelete();
+            }
+        } catch (const std::bad_alloc &e)
+        {
+            delete[] array;
+            array = oldData;
+            capacity /= expansion;
+            occupancy = prevOccupancy;
+
+            throw e;
+        }
+        delete[] oldData;
+    }
+
+    int getCapacity() const{
+        return capacity;
+    }
+
+    int getOccupancy() const{
+        return occupancy;
+    }
+
+    AVL<T, CompareById<T>> *array;
+};
+
+
+template<class T>
+class Reinsert {
+    DHT<T> *hashTable;
+public:
+    explicit Reinsert(DHT<T> *DHT) : hashTable(DHT) {};
+    ~Reinsert() = default;
+
+    bool operator()(T& a) {
+        hashTable->insert(a);
+        return true;
+    }
 };
 
 #endif //UNTITLED_DHT_H

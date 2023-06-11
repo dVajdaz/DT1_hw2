@@ -7,7 +7,7 @@
 
 
 class Customer {
-private:
+
     int id;
     int number;
     int purchases;
@@ -21,9 +21,13 @@ public:
     ~Customer() = default;
 
     int getId() const;
+    int getNumber() const;
+    int getPurchases() const;
 
     bool isMember() const;
     void makeMember();
+
+    void addPurchases(int toAdd);
 };
 
 #endif //UNTITLED_CUSTOMER_H

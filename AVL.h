@@ -139,7 +139,13 @@ public:
 
     void setObjectDelete();
 
-    void addExtra(int key, int toAdd, bool right = false);
+    void addExtra(AVL::Node *root, int key, int toAdd, bool right = false);
+
+    template<class Functor>
+    void runInOrder(Functor& func) const;
+
+    template<class Functor>
+    static bool runInOrderAux(Node *p, Functor& func, bool flag);
 };
 
 //--------------------------Tree operations implementation--------------------------
@@ -159,7 +165,7 @@ T *AVL<T, Comparator>::find(T *toFind) {
 }
 
 template<class T, class Comparator>
-void AVL<T, Comparator>::insert(T &toInsert) { //TODO: Return a pointer to the inserted object (T* return type)
+void AVL<T, Comparator>::insert(T &toInsert) {
     if (&toInsert == NULL)
         return;
 
@@ -205,7 +211,7 @@ void AVL<T, Comparator>::insert(T &toInsert) { //TODO: Return a pointer to the i
 }
 /*
 template<class T, class Comparator>
-void AVL<T, Comparator>::remove(const T &toRemove) { //TODO: Return a pointer to the deleted object
+void AVL<T, Comparator>::remove(const T &toRemove) {
     if (&toRemove == NULL)
         return;
 
@@ -265,6 +271,28 @@ void AVL<T, Comparator>::printPostOrder(AVL::Node *root, int *&output) {
 }
 
 template<class T, class Comparator>
+template<class Functor>
+bool AVL<T, Comparator>::runInOrderAux(AVL::Node *p, Functor &func, bool flag) {
+    if (p == nullptr) {
+        return true;
+    }
+    flag = runInOrderAux(p->left,func,flag);
+    if (flag && !func(*p->obj)) {
+        return false;
+    }
+    if (flag) {
+        flag = runInOrderAux(p->right,func,flag);
+    }
+    return flag;
+}
+
+template<class T, class Comparator>
+template<class Functor>
+void AVL<T,Comparator>::runInOrder(Functor& func) const {
+    runInOrderAux(this->root,func,true);
+}
+
+template<class T, class Comparator>
 void AVL<T, Comparator>::setObjectDelete(){
     deleteObject = true;
 }
@@ -298,7 +326,7 @@ void AVL<T, Comparator>::addExtra(AVL::Node *root, int key, int toAdd, bool righ
 template<class T, class Comparator>
 typename AVL<T, Comparator>::Node *
 AVL<T, Comparator>::rotateRight(
-        Node *toRotate) {  //TODO: Cover the case where toRotate is the root + not sure if parent field needed
+        Node *toRotate) {
     if (!toRotate || !toRotate->left)
         return toRotate;
 
@@ -542,7 +570,7 @@ typename AVL<T, Comparator>::Node *AVL<T, Comparator>::removeNode(Node *toRemove
         } else if (!subtree->right) {
             //toRemove has only left son
             Node *tmp = subtree->left;
-            subtree->obj = tmp->obj;//TODO: Implement copy constructor !!!
+            subtree->obj = tmp->obj;
             subtree->left = removeNode(subtree, subtree->left);
         } else {
             //toRemove has both left and right sons
