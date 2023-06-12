@@ -28,7 +28,7 @@ public:
     UnionFind(int groupNum) : groupNum(groupNum),
         elements(new T(groupNum)) , sizes(new int[groupNum]), parents(new int[groupNum])
     {
-        for (i = 0; i < groupNum; i++) {
+        for (int i = 0; i < groupNum; i++) {
             sizes[i] = 1;
             parents[i] = i;
         }
@@ -57,9 +57,9 @@ public:
     }
 
     ~UnionFind() {
-        delete elements[];
-        delete sizes[];
-        delete parents[];
+        delete[] elements;
+        delete[] sizes;
+        delete[] parents;
     }
 
 };
