@@ -5,6 +5,21 @@
 
 #include "recordsCompany.h"
 
+RecordsCompany::RecordsCompany() {
+    records = UnionFind<Record>();
+    customers = DHT<Customer>();
+    numberOfRecords = 0;
+}
+
+StatusType RecordsCompany::newMonth(int *records_stocks, int number_of_records) {
+        records.makeNewSet(number_of_records);
+        for(int r_id = 0; r_id < number_of_records; r_id++) {
+            Record toInsert = Record(0, r_id, 0, records_stocks[r_id]);
+            records.put(r_id, toInsert);
+        }
+
+}
+
 
 StatusType RecordsCompany::addCostumer(int c_id, int phone) {
     if(c_id < 0 || phone < 0) {
@@ -80,7 +95,7 @@ StatusType RecordsCompany::makeMember(int c_id) {
 }
 
 Output_t<bool> RecordsCompany::isMember(int c_id) {
-    if(c_id < 0 ) return Output_t<bool>(INVALID_INPUT);
+    if(c_id < 0) return Output_t<bool>(INVALID_INPUT);
     bool is_member;
     Customer* dummy;
     try {
@@ -99,15 +114,35 @@ Output_t<bool> RecordsCompany::isMember(int c_id) {
     return Output_t<bool>(is_member);
 }
 
-/*
+
 StatusType RecordsCompany::buyRecord(int c_id, int r_id) {
     if(c_id < 0 || r_id < 0) {
         return INVALID_INPUT;
     }
-    Customer* dummy = new Customer(c_id);
-    if(r_id >= numberOfRecords || !customers.contains(dummy)) {
+    int numOfPurchases;
+    Customer* dummy;
+    try {
+        dummy = new Customer(c_id);
+        if (r_id >= numberOfRecords || !customers.contains(dummy)) {
+            delete dummy;
+            return DOESNT_EXISTS;
+        }
+        numOfPurchases = records.get(r_id).getNumPurchases();
+        records.get(r_id).buyRecord();
+        if(customers.get(dummy)->isMember())
+            customers.get(dummy)->addPurchases(100 + numOfPurchases);
         delete dummy;
-        return DOESNT_EXISTS;
+    }
+    catch(const std::bad_alloc& ) {
+        delete dummy;
+        return ALLOCATION_ERROR;
     }
 
-} */
+}
+
+
+StatusType RecordsCompany::addPrize(int c_id1, int c_id2, double amount) {
+    if(amount <= 0 || c_id1 < 0 || c_id2 < 0) return INVALID_INPUT;
+    //TODO: implement this (rank tree?)
+}
+

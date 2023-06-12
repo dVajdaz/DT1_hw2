@@ -3,7 +3,7 @@
 //
 #include "Record.h"
 
-Record::Record(int purchases, int id, int column, int numOfCopies): purchases(purchases), id(id), column(column),
+Record::Record(int id,  int numOfCopies, int column, int purchases): purchases(purchases), id(id), column(column),
     numOfCopies(numOfCopies){};
 
 int Record::getId() const { return id;}

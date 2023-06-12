@@ -26,7 +26,8 @@ class Reinsert;
 template<class T>
 class DHT {
     int capacity, occupancy;
-    const int expansion;
+    //const int expansion;
+    int expansion;
     //const int shrinkage;
 
 public:

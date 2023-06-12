@@ -12,8 +12,8 @@ private:
     int column;
     int numOfCopies;
 public:
-    Record(int purchases, int id, int column, int numOfCopies);
-
+    Record(int id, int numOfCopies, int column = 0,  int purchases = 0);
+    Record() = default;
     void buyRecord();
     void setId(int id);
     void setCol(int col);

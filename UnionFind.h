@@ -17,6 +17,7 @@ private:
     void merge(int smallerGroupRoot, int largerGroupRoot) {
         parents[smallerGroupRoot] = largerGroupRoot;
         sizes[largerGroupRoot] += sizes[smallerGroupRoot];
+        sizes[smallerGroupRoot] += sizes[largerGroupRoot];
     }
     /*
     struct RootNode {
@@ -24,6 +25,8 @@ private:
         T& value;
     }; */
 public:
+
+    UnionFind() = default;
 
     UnionFind(int groupNum) : groupNum(groupNum),
         elements(new T(groupNum)) , sizes(new int[groupNum]), parents(new int[groupNum])
@@ -34,11 +37,24 @@ public:
         }
     };
 
-    void makeSet(int index, const T& element) {
-        element[index] = element;
+    void makeNewSet(int size) {
+        delete[] elements;
+        delete[] sizes;
+        delete[] parents;
+        groupNum = size;
+        elements = new T[size];
+        sizes = new int[size];
+        parents = new int[size];
+        for (int i = 0; i < groupNum; i++) {
+            sizes[i] = 1;
+            parents[i] = i;
+        }
+    }
+    void put(int index, const T& element) {
+        elements[index] = element;
     }
 
-    T& getElement(int index) { return elements[index];}
+    T& get(int index) { return elements[index];}
 
     int find(int index) {
         if(parents[index] == index) { return index;}
