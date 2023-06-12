@@ -14,7 +14,7 @@ class Customer {
 
     bool membership;
 public:
-    Customer(int id, int number,int purchases = 0, bool membership = false);
+    Customer(int id, int number = 0,int purchases = 0, bool membership = false);
 
     Customer(const Customer &toCopy) = default;
 

@@ -10,16 +10,18 @@ private:
     int purchases;
     int id;
     int column;
-
+    int numOfCopies;
 public:
-    Record(int purchases, int id, int column);
+    Record(int purchases, int id, int column, int numOfCopies);
 
     void buyRecord();
     void setId(int id);
     void setCol(int col);
+    void setNumCopies(int numCopies);
 
     int getNumPurchases() const;
     int getId() const;
     int getCol() const;
+    int getNumCopies() const;
 };
 #endif //DT1_HW2_RECORD_H

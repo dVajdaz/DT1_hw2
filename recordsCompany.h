@@ -3,10 +3,15 @@
 
 #include "utilesWet2.h"
 
-
-
+#include "Record.h"
+#include "Customer.h"
+#include "UnionFind.h"
+#include "DHT.h"
 class RecordsCompany {
   private:
+    DHT<Customer> customers;
+    UnionFind<Record> records;
+    int numberOfRecords;
     // todo
   public:
     RecordsCompany();

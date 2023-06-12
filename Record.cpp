@@ -3,7 +3,8 @@
 //
 #include "Record.h"
 
-Record::Record(int purchases, int id, int column): purchases(purchases), id(id), column(column) {};
+Record::Record(int purchases, int id, int column, int numOfCopies): purchases(purchases), id(id), column(column),
+    numOfCopies(numOfCopies){};
 
 int Record::getId() const { return id;}
 
@@ -13,6 +14,10 @@ int Record::getCol() const {return column;}
 
 int Record::getNumPurchases() const { return purchases;}
 
+int Record::getNumCopies() const { return numOfCopies;}
+
 void Record::setCol(int col) {column = col;}
 
 void Record::setId(int id) { this->id = id;}
+
+void Record::setNumCopies(int numCopies) {numOfCopies = numCopies;}

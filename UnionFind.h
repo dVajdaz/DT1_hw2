@@ -56,6 +56,8 @@ public:
 
     }
 
+    int getSize() const {return groupNum;}
+
     ~UnionFind() {
         delete[] elements;
         delete[] sizes;
@@ -63,8 +65,6 @@ public:
     }
 
 };
-
-
 
 
 
