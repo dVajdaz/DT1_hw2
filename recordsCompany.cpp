@@ -146,3 +146,20 @@ StatusType RecordsCompany::addPrize(int c_id1, int c_id2, double amount) {
     //TODO: implement this (rank tree?)
 }
 
+StatusType RecordsCompany::putOnTop(int r_id1, int r_id2) {
+    if(r_id1 < 0 || r_id2 < 0) { return INVALID_INPUT;}
+    if(r_id2 >= numberOfRecords || r_id1 >= numberOfRecords) {
+        return DOESNT_EXISTS;
+    }
+    if(records.isSameGroup(r_id2, r_id1)) return FAILURE;
+    records.putOnTop(r_id1, r_id2);
+    return SUCCESS;
+}
+
+StatusType RecordsCompany::getPlace(int r_id, int *column, int *hight) {
+    *column = records.getColumn(r_id);
+    *hight = records.getHeight(r_id);
+}
+
+
+
