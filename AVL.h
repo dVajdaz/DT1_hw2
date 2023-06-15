@@ -346,6 +346,8 @@ void AVL<T, Comparator>::addPrize(int c_id1, int c_id2, double amount) {
     int rc_id1;
     int rc_id2 = findClosestId(c_id2);
 
+    if(rc_id2 > c_id2 || rc_id2 < c_id1) return;
+
     if(c_id1  <= getMinNode(root)->obj->getId())
         rc_id1 = -1;
     else

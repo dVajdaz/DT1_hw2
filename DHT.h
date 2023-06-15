@@ -26,16 +26,20 @@ class Reinsert;
 template<class T>
 class DHT {
     int capacity, occupancy;
-    const int expansion;
+     int expansion;
     //const int shrinkage;
 
 public:
-    DHT(const int capacity = 16, int expansion_rate = 2):  array(new AVL<T, CompareById<T>>[capacity]),
+    DHT(const int capacity = 16, int expansion_rate = 2):           array(new AVL<T, CompareById<T>>[capacity]),
                                                                     capacity(capacity),
                                                                     occupancy(0),
                                                                     expansion(expansion_rate)
                                                                     //shrinkage(shrinkage_rate)
-     {}
+     {
+         for (int i = 0; i < capacity; ++i) {
+             array[i] = AVL<T, CompareById<T>>();
+         }
+     }
 
 /*
     DHT(const DHT &toCopy): array(new  int[toCopy.capacity]),   //NOT SURE IF NEEDED

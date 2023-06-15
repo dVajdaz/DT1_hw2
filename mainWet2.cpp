@@ -19,33 +19,33 @@ vector<int> getRecordsStocks();
 
 int main()
 {
-  auto* database =new DHT<Customer>();
-  for(int i = 1; i<15; i++){
-      database->insert(*new Customer(i, i, 0, false));
-      cout << "\nUSER WITH ID " << database->array[database->hashFunction(i)].root->obj->getId() << " INSERTED INTO INDEX " << database->hashFunction(i);
-  }
 
-  cout << "\n\nADDING NEW USER WHOSE INDEX IN THE ARRAY HAS TO CHANGE!";
-  auto* idToChangeBob = new Customer(17, 17, 0, false);
-  database->insert(*idToChangeBob);
-  cout << "\nUSER WITH ID " << database->get(idToChangeBob)->getId() << " INSERTED INTO INDEX " << database->hashFunction(17);
+    RecordsCompany *test_obj = new RecordsCompany();
+    int column;
+    int height;
+    vector<int> stocks_vec;
+    int arr[40] = {19, 16, 5 ,10, 5, 2, 9, 5, 8, 9, 15, 8 ,8 ,8 ,11, 14, 4, 19, 9, 16, 2, 11, 3, 6, 7, 4,
+                   17, 10, 11, 4, 17, 12, 7, 3, 6, 4, 5, 1, 5 ,4};
+    for (int item :  arr) stocks_vec.push_back(item);
+    cout << test_obj->addCostumer(45115, 1108) << endl;
+    cout << test_obj->addCostumer(18904, 94069) << endl;
+    print("GET PHONE "  ,test_obj->getPhone(18904));
+    cout << test_obj->newMonth (&stocks_vec[0], stocks_vec.size());
+    cout << test_obj->makeMember(18904);
+    print("IS MEMBER" , test_obj->isMember(45115));
+    cout << test_obj->makeMember (45115);
+    cout << test_obj->buyRecord(18904, 32);
+    cout << test_obj->buyRecord (45115, 5);
+    print("GET EXPENSES " ,test_obj->getExpenses(18904));
+    cout << test_obj->addPrize(28543, 50000, 45);
+    print("Get expenses" , test_obj->getExpenses(45115));
+    cout << test_obj->putOnTop(3, 8);
+    cout << test_obj->putOnTop(28, 37);
+    cout << test_obj->getPlace(3, &column, &height);
+    cout << test_obj->getPlace(28, &column, &height);
+    cout << test_obj->getPlace(37, &column, &height);
 
-  cout << "\n\nADDING NEW USER! RESIZE REQUIRED";
-
-  database->insert(*new Customer(16, 16, 0, false));
-
-  cout << "\nNEW SIZE OF THE ARRAY IS " << database->getCapacity();
-  cout << "\nUSER WITH ID " << database->array[database->hashFunction(16)].root->obj->getId() << " INSERTED INTO INDEX " << database->hashFunction(16);
-
-  cout << "\n\nUSER WITH ID " << database->get(idToChangeBob)->getId() << " REINSERTED INTO INDEX " << database->hashFunction(17);
-
-  for(int i = 0; i < database->getCapacity(); i++){
-      database->array[i].setObjectDelete();
-  }
-
-  delete database;
-
-  /*
+/*
   string op;
   RecordsCompany *test_obj = new RecordsCompany();
   while (cin >> op)
@@ -143,7 +143,8 @@ int main()
     }
   }
   delete test_obj;
-   */
+
+*/
   return 0;
 
 }
