@@ -50,6 +50,7 @@ public:
         sizes = new int[size];
         parents = new int[size];
         //heights = new int[size];
+        bottom = new int[size];
         extras = new int[size];
         for (int i = 0; i < groupNum; i++) {
             sizes[i] = elements[i].getNumCopies();
