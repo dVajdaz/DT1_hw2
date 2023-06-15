@@ -7,6 +7,7 @@
 
 //#include "wet1util.h"
 #include "math.h"
+//TODO: Edit rotations; When adding a new node - edit its extra field accordingly; Edit addExtra - key might not be in the system
 
 template<class T, class Comparator>
 class AVL {
@@ -92,25 +93,17 @@ public:
 
     Node *RL(Node *toRotate);
 
-    int BF(Node *subtree);
-
-    bool isLeaf(Node *node);
-
+    //--------------------------Tree operations--------------------------
     AVL();
 
     AVL(const AVL<T, Comparator> &toCopy) = default;
 
     ~AVL();
 
-    /**
-     * Receives a Node in the tree and updates its height
-     * @param toUpdate - a Node
-     */
-    void updateHeight(Node *toUpdate);
-
     void destroy(Node* toDestroy);
 
-    //--------------------------Tree operations--------------------------
+    void setObjectDelete();
+
     /**
      * Receives a value to insert into the tree and does so, while maintaining
      * the tree's balance
@@ -125,27 +118,37 @@ public:
      */
     //void remove(const T &toRemove);
 
-    /**
-     * Prints the values stored in the tree in postorder
-     * @param root the root of the tree
-     */
-    void printPostOrder(Node *root, int *&output);
-
     T *find(T *toFind);
 
-    Node *getMinNode(Node *node) const;
+    int BF(Node *subtree);
+
+    bool isLeaf(Node *node);
+
+    /**
+     * Receives a Node in the tree and updates its height
+     * @param toUpdate - a Node
+     */
+    void updateHeight(Node *toUpdate);
 
     Node *getMaxNode(Node *node) const;
 
-    void setObjectDelete();
+    Node *getMinNode(Node *node) const;
 
-    void addExtra(AVL::Node *root, int key, int toAdd, bool right = false);
+    int findClosestId(int key);
+
+    void addExtraAux(AVL::Node *root, int key, double toAdd, bool right = false);
+
+    void addExtra(int key, double toAdd);
+
+    void addPrize(int i1, int i2, double amount);
 
     template<class Functor>
     void runInOrder(Functor& func) const;
 
     template<class Functor>
     static bool runInOrderAux(Node *p, Functor& func, bool flag);
+
+    double calculateExtra(int key, AVL::Node *root, double sum = 0);
 };
 
 //--------------------------Tree operations implementation--------------------------
@@ -205,6 +208,8 @@ void AVL<T, Comparator>::insert(T &toInsert) {
 
     root = insertNode(toInsertNode, root);
 
+    addPrize(toInsert.getId(), toInsert.getId(), -1* calculateExtra(toInsert.getId(), root));
+
     max_node = getMaxNode(root);
 
     size++;
@@ -262,15 +267,6 @@ bool AVL<T, Comparator>::isLeaf(Node *node) {
 }
 
 template<class T, class Comparator>
-void AVL<T, Comparator>::printPostOrder(AVL::Node *root, int *&output) {
-    if (!root)
-        return;
-    printPostOrder(root->right, output);
-    *(output++) = root->obj->getId();
-    printPostOrder(root->left, output);
-}
-
-template<class T, class Comparator>
 template<class Functor>
 bool AVL<T, Comparator>::runInOrderAux(AVL::Node *p, Functor &func, bool flag) {
     if (p == nullptr) {
@@ -293,40 +289,106 @@ void AVL<T,Comparator>::runInOrder(Functor& func) const {
 }
 
 template<class T, class Comparator>
-void AVL<T, Comparator>::setObjectDelete(){
+int AVL<T, Comparator>::findClosestId(int key) {
+    Node* current = root;
+    int closest;
+
+    while(current != nullptr){
+
+        if(current->obj->getId() == key)
+            return key;
+
+        if(current->obj->getId() < key){
+            closest = current->obj->getId();
+            current = current->right;
+        }else{
+            current = current->left;
+        }
+    }
+
+    return closest;
+}
+
+template<class T, class Comparator>
+void AVL<T, Comparator>::addExtraAux(AVL::Node *root, int key, double toAdd, bool right) {
+    if(root->obj->getId() == key){
+        if(!right)
+            root->extra += toAdd;
+
+        if(root->right != nullptr)
+            root->right->extra -= toAdd;
+
+        return;
+    }
+
+    if(root->obj->getId() < key && root->right){
+        if(!right)
+            root->extra += toAdd;
+
+        addExtraAux(root->right, key, toAdd, true);
+    }
+
+    if(root->obj->getId() > key && root->left){
+        if(right)
+            root->extra -= toAdd;
+
+        addExtraAux(root->left, key, toAdd, false);
+    }
+}
+
+template<class T, class Comparator>
+void AVL<T, Comparator>::addExtra(int key, double toAdd) {
+    addExtraAux(root, key, toAdd);
+}
+
+template<class T, class Comparator>
+void AVL<T, Comparator>::addPrize(int c_id1, int c_id2, double amount) {
+    int rc_id1;
+    int rc_id2 = findClosestId(c_id2);
+
+    if(c_id1  <= getMinNode(root)->obj->getId())
+        rc_id1 = -1;
+    else
+        rc_id1 = findClosestId(c_id1 - 1);
+
+    if(rc_id1 <= rc_id2 && rc_id2 >= getMinNode(root)->obj->getId()){
+        addExtra(rc_id2, amount);
+
+        if(rc_id1 != rc_id2 && rc_id1 != -1)
+            addExtra(rc_id1, -1*amount);
+    }
+}
+
+template<class T, class Comparator>
+double AVL<T, Comparator>::calculateExtra(int key, AVL::Node *root, double sum) {
+    if(root->obj->getId() == key || isLeaf(root))
+        return sum + root->extra;
+    else if(root->obj->getId() < key)
+        return calculateExtra(key, root->right, sum + root->extra);
+
+    return calculateExtra(key, root->left, sum + root->extra);
+}
+
+template<class T, class Comparator>
+void AVL<T, Comparator>::setObjectDelete() {
     deleteObject = true;
 }
 
 template<class T, class Comparator>
-void AVL<T, Comparator>::addExtra(AVL::Node *root, int key, int toAdd, bool right){
-    if(root->obj.getId() == key){
-        if(!right)
-           root->extra += toAdd;
+void AVL<T, Comparator>::destroy(Node* toDestroy) {
+    if(!toDestroy)
+        return;
 
-        if(root->right)
-            root->right->extra -= toAdd;
-    }
+    destroy(toDestroy->left);
 
-    if(root->obj.getId() < key && root->right){
-        if(!right)
-            root->extra += toAdd;
+    destroy(toDestroy->right);
 
-        addExtra(root->right, key, toAdd, true);
-    }
-
-    if(root->obj.getId() > key && root->left){
-        if(right)
-            root->extra -= toAdd;
-
-        addExtra(root->left, key, toAdd, false);
-    }
+    delete toDestroy;
 }
 
 //--------------------------Rotations implementation--------------------------
 template<class T, class Comparator>
-typename AVL<T, Comparator>::Node *
-AVL<T, Comparator>::rotateRight(
-        Node *toRotate) {
+typename AVL<T, Comparator>::Node *AVL<T, Comparator>::rotateRight(Node *toRotate) {
     if (!toRotate || !toRotate->left)
         return toRotate;
 
@@ -337,6 +399,7 @@ AVL<T, Comparator>::rotateRight(
         Node *left_right = left->right;
         toRotate->left = left_right;
         left_right->parent = toRotate;
+        left_right->extra += left->extra;
     }
     toRotate->left = left->right;
     left->right = toRotate;
@@ -347,6 +410,11 @@ AVL<T, Comparator>::rotateRight(
     updateHeight(toRotate);
     updateHeight(left);
 
+    //Adjust the extras
+    left->extra += left->right->extra;
+    left->right->extra -= left->extra;
+    //left->left->extra -= calculateExtra(left->left->obj->getId(), this->root);
+
     //Return the new root of the subtree
     return left;
 }
@@ -354,7 +422,7 @@ AVL<T, Comparator>::rotateRight(
 template<class T, class Comparator>
 typename AVL<T, Comparator>::Node *
 AVL<T, Comparator>::rotateLeft(Node *toRotate) {
-    if (!toRotate || !toRotate->right)
+     if (!toRotate || !toRotate->right)
         return toRotate;
 
     //Perform the Rotation
@@ -364,6 +432,7 @@ AVL<T, Comparator>::rotateLeft(Node *toRotate) {
         Node *right_left = right->left;
         toRotate->right = right_left;
         right_left->parent = toRotate;
+        right_left->extra += right->extra;
     }
     toRotate->right = right->left;
     right->left = toRotate;
@@ -374,14 +443,17 @@ AVL<T, Comparator>::rotateLeft(Node *toRotate) {
     updateHeight(toRotate);
     updateHeight(right);
 
+    //Adjust the extras
+    right->extra += right->left->extra;
+    right->left->extra -= right->extra;
+
     //Return the new root of the subtree
     return right;
 }
 
 template<class T, class Comparator>
 typename AVL<T, Comparator>::Node *
-AVL<T, Comparator>::RL(
-        Node *toRotate) { //Not sure if any additional tests needed since basic rotation methods cover all the edge cases already
+AVL<T, Comparator>::RL(Node *toRotate) { //Not sure if any additional tests needed since basic rotation methods cover all the edge cases already
     if (toRotate) {
         Node *right = toRotate->right;
         toRotate->right = rotateRight(right);
@@ -600,17 +672,6 @@ typename AVL<T, Comparator>::Node *AVL<T, Comparator>::removeNode(Node *toRemove
 */
 
 template<class T, class Comparator>
-typename AVL<T, Comparator>::Node *AVL<T, Comparator>::getMinNode(AVL<T, Comparator>::Node *node) const {
-    if (!node)
-        return NULL;
-
-    if (!node->left)
-        return node;
-
-    return getMinNode(node->left);
-}
-
-template<class T, class Comparator>
 typename AVL<T, Comparator>::Node *AVL<T, Comparator>::getMaxNode(Node *node) const {
     if (!node)
         return NULL;
@@ -622,16 +683,14 @@ typename AVL<T, Comparator>::Node *AVL<T, Comparator>::getMaxNode(Node *node) co
 }
 
 template<class T, class Comparator>
-void AVL<T, Comparator>::destroy(Node* toDestroy) {
-    if(!toDestroy)
-        return;
+typename AVL<T, Comparator>::Node *AVL<T, Comparator>::getMinNode(Node *node) const {
+    if (!node)
+        return NULL;
 
-    destroy(toDestroy->left);
+    if (!node->left)
+        return node;
 
-    destroy(toDestroy->right);
-
-    delete toDestroy;
+    return getMinNode(node->left);
 }
-
 #endif
 
