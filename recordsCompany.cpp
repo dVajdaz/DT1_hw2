@@ -10,12 +10,25 @@ RecordsCompany::RecordsCompany(): records(UnionFind<Record>()) , customers(DHT<C
 }
 
 StatusType RecordsCompany::newMonth(int *records_stocks, int number_of_records) {
-        records.makeNewSet(number_of_records);
-        for(int r_id = 0; r_id < number_of_records; r_id++) {
-            Record toInsert = Record(0, r_id, 0, records_stocks[r_id]);
-            records.put(r_id, toInsert);
+        if(number_of_records < 0)   return INVALID_INPUT;
+
+    numberOfRecords = number_of_records;
+
+        try{
+            records.makeNewSet(number_of_records);
+        } catch(const std::bad_alloc &){
+            return ALLOCATION_ERROR;
         }
 
+    for(int r_id = 0; r_id < number_of_records; r_id++) {
+        Record toInsert = Record(r_id, records_stocks[r_id], 0, 0);
+        records.put(r_id, toInsert);
+    }
+
+    for(int current = 0; current < customers.getCapacity(); ++current){
+        customers.array[current].clearExtra(customers.array[current].root);
+    }
+        return SUCCESS;
 }
 
 RecordsCompany::~RecordsCompany() {
@@ -89,6 +102,7 @@ StatusType RecordsCompany::makeMember(int c_id) {
             return ALREADY_EXISTS;
         }
         customers.get(dummy)->makeMember();
+        customers.get(dummy)->setOffset(-1 * customers.array[customers.hashFunction(c_id)].calculateExtra(c_id, customers.array[customers.hashFunction(c_id)].root));
         delete dummy;
     }
     catch(const std::bad_alloc &) {
@@ -118,32 +132,35 @@ Output_t<bool> RecordsCompany::isMember(int c_id) {
     return Output_t<bool>(is_member);
 }
 
-
 StatusType RecordsCompany::buyRecord(int c_id, int r_id) {
     if(c_id < 0 || r_id < 0) {
         return INVALID_INPUT;
     }
+
     int numOfPurchases;
-    Customer* dummy;
+    Customer* dummy = new Customer(c_id);
+    /*
     try {
         dummy = new Customer(c_id);
-        if (r_id >= numberOfRecords || !customers.contains(dummy)) {
-            delete dummy;
-            return DOESNT_EXISTS;
-        }
-        numOfPurchases = records.get(r_id).getNumPurchases();
-        records.get(r_id).buyRecord();
-        if(customers.get(dummy)->isMember())
-            customers.get(dummy)->addPurchases(100 + numOfPurchases);
-        delete dummy;
     }
     catch(const std::bad_alloc& ) {
         delete dummy;
         return ALLOCATION_ERROR;
     }
+     */
 
+    if (r_id >= numberOfRecords || !customers.contains(dummy)) {
+        delete dummy;
+        return DOESNT_EXISTS;
+    }
+    numOfPurchases = records.get(r_id).getNumPurchases();
+    records.get(r_id).buyRecord();
+    if(customers.get(dummy)->isMember())
+        customers.get(dummy)->addPurchases(100 + numOfPurchases);
+
+    delete dummy;
+    return SUCCESS;
 }
-
 
 StatusType RecordsCompany::addPrize(int c_id1, int c_id2, double amount) {
     if(amount <= 0 || c_id1 < 0 || c_id2 < 0 || c_id1 > c_id2) return INVALID_INPUT;
@@ -161,6 +178,7 @@ Output_t<double> RecordsCompany::getExpenses(int c_id) {
     try {
         dummy = new Customer(c_id);
         if(!customers.get(dummy) || !customers.get(dummy)->isMember()) return Output_t<double>(DOESNT_EXISTS);
+        //TODO: DELETE DUMMY
         return Output_t<double>(customers.get(dummy)->getPurchases() -
                 customers.array[customers.hashFunction(c_id)].calculateExtra(c_id, customers.array[customers.hashFunction(c_id)].root));
     }
@@ -181,8 +199,17 @@ StatusType RecordsCompany::putOnTop(int r_id1, int r_id2) {
 }
 
 StatusType RecordsCompany::getPlace(int r_id, int *column, int *hight) {
+
+    if(r_id < 0 || !column || !hight)
+        return INVALID_INPUT;
+
+    if(r_id >= numberOfRecords)
+        return DOESNT_EXISTS;
+
     *column = records.getColumn(r_id);
     *hight = records.getHeight(r_id);
+
+    return SUCCESS;
 }
 
 

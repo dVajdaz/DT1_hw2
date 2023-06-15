@@ -12,6 +12,8 @@ class Customer {
     int number;
     int purchases;
 
+    double offset = 0;
+
     bool membership;
 public:
     Customer(int id, int number = 0,int purchases = 0, bool membership = false);
@@ -28,6 +30,9 @@ public:
     void makeMember();
 
     void addPurchases(int toAdd);
+    void setOffset(double toAdd);
+
+    double getOffset();
 };
 
 #endif //UNTITLED_CUSTOMER_H

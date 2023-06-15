@@ -28,3 +28,12 @@ void Customer::makeMember() {
 void Customer::addPurchases(const int toAdd) {
     purchases += toAdd;
 }
+
+void Customer::setOffset(double toAdd) {
+    offset = toAdd;
+}
+
+double Customer::getOffset() {
+    return offset;
+}
+

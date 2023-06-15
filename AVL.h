@@ -26,6 +26,7 @@ public:
     struct Node {
         int height;
         int extra = 0;
+        int offset = 0;
 
         T *obj;
 
@@ -149,6 +150,8 @@ public:
     static bool runInOrderAux(Node *p, Functor& func, bool flag);
 
     double calculateExtra(int key, AVL::Node *root, double sum = 0);
+
+    void clearExtra(Node *node);
 };
 
 //--------------------------Tree operations implementation--------------------------
@@ -364,11 +367,21 @@ void AVL<T, Comparator>::addPrize(int c_id1, int c_id2, double amount) {
 template<class T, class Comparator>
 double AVL<T, Comparator>::calculateExtra(int key, AVL::Node *root, double sum) {
     if(root->obj->getId() == key || isLeaf(root))
-        return sum + root->extra;
+        return sum + root->extra - root->obj->getOffset();
     else if(root->obj->getId() < key)
         return calculateExtra(key, root->right, sum + root->extra);
 
     return calculateExtra(key, root->left, sum + root->extra);
+}
+
+template<class T, class Comparator>
+void AVL<T, Comparator>::clearExtra(Node *node) {
+    if (!node)
+        return;
+    clearExtra(node->right);
+    node->extra = 0;
+    node->obj->addPurchases(-1* node->obj->getPurchases());
+    clearExtra(node->left);
 }
 
 template<class T, class Comparator>
@@ -401,7 +414,7 @@ typename AVL<T, Comparator>::Node *AVL<T, Comparator>::rotateRight(Node *toRotat
         Node *left_right = left->right;
         toRotate->left = left_right;
         left_right->parent = toRotate;
-        left_right->extra += left->extra;
+        left_right->extra -= toRotate->extra;
     }
     toRotate->left = left->right;
     left->right = toRotate;
@@ -434,7 +447,7 @@ AVL<T, Comparator>::rotateLeft(Node *toRotate) {
         Node *right_left = right->left;
         toRotate->right = right_left;
         right_left->parent = toRotate;
-        right_left->extra += right->extra;
+        right_left->extra -= toRotate->extra;
     }
     toRotate->right = right->left;
     right->left = toRotate;

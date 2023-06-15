@@ -39,6 +39,9 @@ public:
     };
 
     void makeNewSet(int size) {
+
+
+
         delete[] elements;
         delete[] sizes;
         delete[] parents;
