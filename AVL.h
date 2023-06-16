@@ -10,6 +10,7 @@
 #include "math.h"
 #include "DHT.h"
 
+
 template<class T, class Comparator>
 class Scan;
 template<class T, class Comparator>
@@ -238,12 +239,15 @@ void AVL<T, Comparator>::remove(const T &toRemove) {
     size--;
 }
 */
+
+
 template<class T, class Comparator>
 void AVL<T, Comparator>::updateHeight(Node *toUpdate) {
     if (isLeaf(toUpdate)) {
         toUpdate->height = 0;
     } else if (toUpdate->right && toUpdate->left) {
-        toUpdate->height = 1 + std::fmax(toUpdate->right->height, toUpdate->left->height);
+        int maxHeight = toUpdate->right->height > toUpdate->left->height ? toUpdate->right->height : toUpdate->left->height;
+        toUpdate->height = 1 + maxHeight;
     } else if (toUpdate->left) {
         toUpdate->height = toUpdate->left->height + 1;
     } else if (toUpdate->right) {
@@ -752,4 +756,5 @@ typename AVL<T, Comparator>::Node *AVL<T, Comparator>::getMinNode(Node *node) co
     return getMinNode(node->left);
 }
 #endif
+
 
