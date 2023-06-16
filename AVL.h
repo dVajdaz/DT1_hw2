@@ -6,9 +6,12 @@
 #define DS1_HW1_AVL_H
 
 //#include "wet1util.h"
+#include <cassert>
 #include "math.h"
+#include "DHT.h"
 //TODO: Edit rotations; When adding a new node - edit its extra field accordingly; Edit addExtra - key might not be in the system
-
+template<class T, class Comparator>
+class Scan;
 template<class T, class Comparator>
 class AVL {
 public:
@@ -206,12 +209,10 @@ void AVL<T, Comparator>::insert(T &toInsert) {
     toInsertNode->left = NULL;
     toInsertNode->parent = NULL;
     toInsertNode->height = 0;
-    //toInsertNode->extra = 0;
+    toInsertNode->extra = 0;
     toInsertNode->deleteObject = &(AVL::deleteObject);
 
     root = insertNode(toInsertNode, root);
-
-    addPrize(toInsert.getId(), toInsert.getId(), -1* calculateExtra(toInsert.getId(), root));
 
     max_node = getMaxNode(root);
 
@@ -272,10 +273,11 @@ bool AVL<T, Comparator>::isLeaf(Node *node) {
 template<class T, class Comparator>
 template<class Functor>
 bool AVL<T, Comparator>::runInOrderAux(AVL::Node *p, Functor &func, bool flag) {
-    if (p == nullptr) {
+    if (p == nullptr)
         return true;
-    }
+
     flag = runInOrderAux(p->left,func,flag);
+
     if (flag && !func(*p->obj)) {
         return false;
     }
@@ -294,15 +296,16 @@ void AVL<T,Comparator>::runInOrder(Functor& func) const {
 template<class T, class Comparator>
 int AVL<T, Comparator>::findClosestId(int key) {
     Node* current = root;
-    int closest;
+    int closest = -1;
 
     while(current != nullptr){
+        closest = (current->obj->getId() <= key) ? std::max(current->obj->getId(), closest) : closest;
 
         if(current->obj->getId() == key)
             return key;
 
         if(current->obj->getId() < key){
-            closest = current->obj->getId();
+            //closest = current->obj->getId();
             current = current->right;
         }else{
             current = current->left;
@@ -346,10 +349,27 @@ void AVL<T, Comparator>::addExtra(int key, double toAdd) {
 
 template<class T, class Comparator>
 void AVL<T, Comparator>::addPrize(int c_id1, int c_id2, double amount) {
+    //std::vector<double> serega, nenada;
+    //Scan<T, Comparator> withAmount(&serega, this, c_id1, c_id2, amount);
+    //Scan<T, Comparator> empty(&nenada, this, c_id1, c_id2, 0);
+
+    //runInOrder(withAmount);
+
     int rc_id1;
     int rc_id2 = findClosestId(c_id2);
 
-    if(rc_id2 > c_id2 || rc_id2 < c_id1) return;
+    if(c_id2 < c_id2 < getMinNode(root)->obj->getId())
+        return;
+
+    if(rc_id2 > c_id2 || rc_id2 < c_id1 || c_id2 < getMinNode(root)->obj->getId())
+    {
+        /*
+        runInOrder(empty);
+        if(!equal(serega.begin(), serega.end(), nenada.begin()) )
+            std::cout << "POEBOTA" << std::endl;
+        */
+        return;
+    }
 
     if(c_id1  <= getMinNode(root)->obj->getId())
         rc_id1 = -1;
@@ -362,12 +382,17 @@ void AVL<T, Comparator>::addPrize(int c_id1, int c_id2, double amount) {
         if(rc_id1 != rc_id2 && rc_id1 != -1)
             addExtra(rc_id1, -1*amount);
     }
+    /*
+    runInOrder(empty);
+    if(!equal(serega.begin(), serega.end(), nenada.begin()) )
+        std::cout << "POEBOTA" << std::endl;
+    */
 }
 
 template<class T, class Comparator>
 double AVL<T, Comparator>::calculateExtra(int key, AVL::Node *root, double sum) {
-    if(root->obj->getId() == key || isLeaf(root))
-        return sum + root->extra - root->obj->getOffset();
+    if(root->obj->getId() == key)
+        return sum + root->extra;
     else if(root->obj->getId() < key)
         return calculateExtra(key, root->right, sum + root->extra);
 
@@ -380,7 +405,7 @@ void AVL<T, Comparator>::clearExtra(Node *node) {
         return;
     clearExtra(node->right);
     node->extra = 0;
-    node->obj->addPurchases(-1* node->obj->getPurchases());
+    node->obj->addPurchases(-1*node->obj->getPurchases());
     clearExtra(node->left);
 }
 
@@ -410,11 +435,21 @@ typename AVL<T, Comparator>::Node *AVL<T, Comparator>::rotateRight(Node *toRotat
     //Perform the Rotation
     Node *left = toRotate->left;
 
+    //Adjust the extras
+    int x = toRotate->extra;
+    int y = left->extra;
+    int z = left->right ? left->right->extra : 0;
+    toRotate->extra = -y;
+    left->extra = x + y;
+
+    if(left->right)
+        left->right->extra = y + z;
+
     if (left->right) {
         Node *left_right = left->right;
         toRotate->left = left_right;
         left_right->parent = toRotate;
-        left_right->extra -= toRotate->extra;
+        //left_right->extra -= toRotate->extra;
     }
     toRotate->left = left->right;
     left->right = toRotate;
@@ -426,8 +461,8 @@ typename AVL<T, Comparator>::Node *AVL<T, Comparator>::rotateRight(Node *toRotat
     updateHeight(left);
 
     //Adjust the extras
-    left->extra += left->right->extra;
-    left->right->extra -= left->extra;
+    //left->extra += left->right->extra;
+    //left->right->extra -= left->extra;
     //left->left->extra -= calculateExtra(left->left->obj->getId(), this->root);
 
     //Return the new root of the subtree
@@ -443,11 +478,21 @@ AVL<T, Comparator>::rotateLeft(Node *toRotate) {
     //Perform the Rotation
     Node *right = toRotate->right;
 
+    //Adjust the extras
+    int x = toRotate->extra;
+    int y = right->extra;
+    int z = right->left ? right->left->extra : 0;
+    toRotate->extra = -y;
+    right->extra = x + y;
+
+    if(right->left)
+        right->left->extra = y + z;
+
     if (right->left) {
         Node *right_left = right->left;
         toRotate->right = right_left;
         right_left->parent = toRotate;
-        right_left->extra -= toRotate->extra;
+        //right_left->extra -= toRotate->extra;
     }
     toRotate->right = right->left;
     right->left = toRotate;
@@ -459,8 +504,8 @@ AVL<T, Comparator>::rotateLeft(Node *toRotate) {
     updateHeight(right);
 
     //Adjust the extras
-    right->extra += right->left->extra;
-    right->left->extra -= right->extra;
+    //right->extra += right->left->extra;
+    //right->left->extra -= right->extra;
 
     //Return the new root of the subtree
     return right;
@@ -517,7 +562,6 @@ typename AVL<T, Comparator>::Node *AVL<T, Comparator>::findNode(const T &toSearc
     if (!subtree)
         return nullptr;
 
-
     if (compare(toSearch, *subtree->obj) == 0)
         return subtree;
     else if (compare(toSearch, *subtree->obj) > 0) {
@@ -547,7 +591,7 @@ typename AVL<T, Comparator>::Node *AVL<T, Comparator>::findParent(const T &toSea
 }
 
 template<class T, class Comparator>
-typename AVL<T, Comparator>::Node *AVL<T, Comparator>::insertNode(Node *toInsert, Node *root) {
+typename AVL<T, Comparator>::Node *AVL<T, Comparator>::insertNode(Node *toInsert, Node *root)  {
     //Finding the node that should be toInsert's parent
     Node *parent = findParent(*toInsert->obj, root);
     //Checking whether toInsert should be the left child or the right child and inserting him accordingly
@@ -556,8 +600,11 @@ typename AVL<T, Comparator>::Node *AVL<T, Comparator>::insertNode(Node *toInsert
     } else { parent->left = toInsert; }
     toInsert->parent = parent;
 
+    toInsert->extra = -calculateExtra(toInsert->obj->getId(), root);
+
     //Checking the balance of the tree and rotating if needed
     return doInsertRotation(toInsert, parent, root);
+
 }
 
 template<class T, class Comparator>

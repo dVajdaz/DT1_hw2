@@ -6,6 +6,7 @@
 #define UNTITLED_DHT_H
 
 #include <new>
+#include <vector>
 #include "AVL.h"
 
 template<class T>
@@ -20,7 +21,7 @@ public:
     }
 };
 
-template<class T>
+template<class T, class Comparator>
 class Reinsert;
 
 template<class T>
@@ -91,7 +92,7 @@ public:
             array = new AVL<T, CompareById<T>>[capacity];
             occupancy = 0;
 
-            Reinsert<T> reinsert(this);
+            Reinsert<T, CompareById<T>> reinsert(this);
             for (int i = 0; i < capacity/expansion; i++)
             {
                 oldData[i].runInOrder(reinsert);
@@ -120,12 +121,32 @@ public:
     AVL<T, CompareById<T>> *array;
 };
 
+template<class T, class Comparator>
+class Scan {
+    std::vector<double> *vec;
+    AVL<T, Comparator> *tree;
+    int i1, i2;
+    double amount;
+public:
+    Scan(std::vector<double> *vec, AVL<T, Comparator> *tree, int i1, int i2, double amount) : vec(vec), tree(tree), i1(i1), i2(i2), amount(amount) {};
+    ~Scan() = default;
 
-template<class T>
+    bool operator()(T& a) {
+        int id = a.getId();
+        double value = tree->calculateExtra(id, tree->root);
+        if (id >= i1 && id <= i2) {
+            value += amount;
+        }
+        vec->push_back(value);
+        return true;
+    }
+};
+
+template<class T, class Comparator>
 class Reinsert {
     DHT<T> *hashTable;
 public:
-    explicit Reinsert(DHT<T> *DHT) : hashTable(DHT) {};
+    Reinsert(DHT<T> *DHT) : hashTable(DHT) {};
     ~Reinsert() = default;
 
     bool operator()(T& a) {

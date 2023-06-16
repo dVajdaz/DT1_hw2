@@ -11,6 +11,7 @@ class RecordsCompany {
   private:
     DHT<Customer> customers;
     UnionFind<Record> records;
+    AVL<Customer, CompareById<Customer>> members;
     int numberOfRecords;
     // todo
   public:
