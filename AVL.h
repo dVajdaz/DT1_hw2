@@ -46,6 +46,7 @@ public:
     };
 
     Node *max_node = nullptr; //A pointer to the node containing the largest value in the tree
+    Node *min_node = nullptr;
     Node *root; //A pointer to the root of the current tree
 
     bool deleteObject = false;
@@ -323,7 +324,6 @@ void AVL<T, Comparator>::addExtraAux(AVL::Node *root, int key, double toAdd, boo
 
         if(root->right != nullptr)
             root->right->extra -= toAdd;
-
         return;
     }
 
@@ -356,10 +356,7 @@ void AVL<T, Comparator>::addPrize(int c_id1, int c_id2, double amount) {
     //runInOrder(withAmount);
 
     int rc_id1;
-    int rc_id2 = findClosestId(c_id2);
-
-    if(c_id2 < c_id2 < getMinNode(root)->obj->getId())
-        return;
+    int rc_id2 = findClosestId(c_id2-1);
 
     if(rc_id2 > c_id2 || rc_id2 < c_id1 || c_id2 < getMinNode(root)->obj->getId())
     {

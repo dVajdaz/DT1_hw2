@@ -4,6 +4,7 @@
 
 
 #include "recordsCompany.h"
+#include "iostream"
 
 RecordsCompany::RecordsCompany(): records(UnionFind<Record>()) , customers(DHT<Customer>()), members(AVL<Customer, CompareById<Customer>>()) {
     numberOfRecords = 0;
@@ -168,10 +169,16 @@ StatusType RecordsCompany::buyRecord(int c_id, int r_id) {
 }
 
 StatusType RecordsCompany::addPrize(int c_id1, int c_id2, double amount) {
+
     if(amount <= 0 || c_id1 < 0 || c_id2 < 0 || c_id1 > c_id2) return INVALID_INPUT;
 
-    members.addPrize(c_id1, c_id2, amount);
+    if(members.size == 0)
+        return SUCCESS;
 
+    if(c_id1 == c_id2 || c_id2 < members.getMinNode(members.root)->obj->getId() || c_id1 > members.getMaxNode(members.root)->obj->getId())
+        return SUCCESS;
+
+    members.addPrize(c_id1, c_id2, amount);
     return SUCCESS;
 }
 
