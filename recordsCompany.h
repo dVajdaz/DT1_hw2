@@ -13,7 +13,7 @@ class RecordsCompany {
     UnionFind<Record> records;
     AVL<Customer, CompareById<Customer>> members;
     int numberOfRecords;
-    // todo
+
   public:
     RecordsCompany();
     ~RecordsCompany();

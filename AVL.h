@@ -9,7 +9,7 @@
 #include <cassert>
 #include "math.h"
 #include "DHT.h"
-//TODO: Edit rotations; When adding a new node - edit its extra field accordingly; Edit addExtra - key might not be in the system
+
 template<class T, class Comparator>
 class Scan;
 template<class T, class Comparator>

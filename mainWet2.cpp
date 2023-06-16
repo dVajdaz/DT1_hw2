@@ -17,35 +17,9 @@ void print(string cmd, Output_t<T> res);
 
 vector<int> getRecordsStocks();
 
+
 int main()
 {
-
-    RecordsCompany *test_obj = new RecordsCompany();
-    int column;
-    int height;
-    vector<int> stocks_vec;
-    int arr[40] = {19, 16, 5 ,10, 5, 2, 9, 5, 8, 9, 15, 8 ,8 ,8 ,11, 14, 4, 19, 9, 16, 2, 11, 3, 6, 7, 4,
-                   17, 10, 11, 4, 17, 12, 7, 3, 6, 4, 5, 1, 5 ,4};
-    for (int item :  arr) stocks_vec.push_back(item);
-    cout << test_obj->addCostumer(45115, 1108) << endl;
-    cout << test_obj->addCostumer(18904, 94069) << endl;
-    print("GET PHONE "  ,test_obj->getPhone(18904));
-    cout << test_obj->newMonth (&stocks_vec[0], stocks_vec.size());
-    cout << test_obj->makeMember(18904);
-    print("IS MEMBER" , test_obj->isMember(45115));
-    cout << test_obj->makeMember (45115);
-    cout << test_obj->buyRecord(18904, 32);
-    cout << test_obj->buyRecord (45115, 5);
-    print("GET EXPENSES " ,test_obj->getExpenses(18904));
-    cout << test_obj->addPrize(28543, 50000, 45);
-    print("Get expenses" , test_obj->getExpenses(45115));
-    cout << test_obj->putOnTop(3, 8);
-    cout << test_obj->putOnTop(28, 37);
-    cout << test_obj->getPlace(3, &column, &height);
-    cout << test_obj->getPlace(28, &column, &height);
-    cout << test_obj->getPlace(37, &column, &height);
-
-/*
   string op;
   RecordsCompany *test_obj = new RecordsCompany();
   while (cin >> op)
@@ -103,7 +77,7 @@ int main()
       print(op, test_obj->addPrize(c_id1, c_id2, amount));
     }
     else if(!op.compare("getExpenses"))
-    {
+    {   
       int c_id;
       cin >> c_id;
 
@@ -144,7 +118,6 @@ int main()
   }
   delete test_obj;
 
-*/
   return 0;
 
 }

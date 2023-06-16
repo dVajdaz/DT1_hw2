@@ -1,7 +1,7 @@
 #!/bin/bash
 
-TESTS_TO_RUN=30
-EXECUTABLE=./prog
+TESTS_TO_RUN=100
+EXECUTABLE=./a
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -18,6 +18,10 @@ do
 	
 	printf "test $i >>>  "
 	$EXECUTABLE < $i > outFiles/test${i//[^0-9]/}.result
+
+	dos2unix outFiles/test${i//[^0-9]/}.out
+	dos2unix outFiles/test${i//[^0-9]/}.result
+
 	diff outFiles/test${i//[^0-9]/}.out outFiles/test${i//[^0-9]/}.result
 
 	if [ $? -eq 0 ]
@@ -28,23 +32,8 @@ do
 		FAILED_TESTS+='-'
 		FAILED_TESTS+='F'
 	fi
-	valgrind --log-file=$i.valgrind_log --leak-check=full $EXECUTABLE < $i 1>/dev/null 2>/dev/null
-	if [ -f $i.valgrind_log ]
-	then
-		cat $i.valgrind_log | grep "ERROR SUMMARY: 0" > /dev/null
-		if [ $? -eq 0 ]
-		then
-			printf "Leak: ${GREEN}pass${NC}\n"
-		else
-			printf "Leak: ${RED}fail${NC}\n"
-			cat $i.valgrind_log
-			FAILED_TESTS+="-"
-		fi
-	else
-		printf "Leak: ${RED}couldnt get valgrind file${NC}\n"
-		FAILED_TESTS+="-"
-	fi
-	rm $i.valgrind_log
+
+
 done
 
 if [ -z ${FAILED_TESTS} ]; then

@@ -34,7 +34,8 @@ StatusType RecordsCompany::newMonth(int *records_stocks, int number_of_records) 
     return SUCCESS;
 }
 
-RecordsCompany::~RecordsCompany() {         //TODO: MEMBERS's DESTRUCTOR CALLED FIRST -> MIGHT CAUSE DOUBLE FREE -> CHANGE PARAMETER's PLACES !!!
+RecordsCompany::~RecordsCompany() {
+    //members.setObjectDelete();
     for (int i = 0; i < customers.getCapacity(); ++i) {
         customers.array[i].setObjectDelete();
     }
